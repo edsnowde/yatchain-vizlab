@@ -4,7 +4,7 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Play, Download, Clock, MapPin, Route, Target } from 'lucide-react';
+import { ArrowLeft, Play, Download, Clock, MapPin, Route, Target, IndianRupee } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const TripDetail = () => {
@@ -22,6 +22,7 @@ const TripDetail = () => {
     distance: 12.5,
     mode: 'Bus',
     purpose: 'Work',
+    cost: 15,
     origin: { name: 'Ernakulam Junction', lat: 9.9312, lng: 76.2673 },
     destination: { name: 'InfoPark Kakkanad', lat: 9.9816, lng: 76.3127 },
     path: [
@@ -197,10 +198,16 @@ const TripDetail = () => {
                     <p className="text-sm text-muted-foreground">Duration</p>
                     <p className="font-semibold">{tripData.duration} min</p>
                   </div>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Distance</p>
                     <p className="font-semibold">{tripData.distance} km</p>
                   </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Cost</p>
+                    <p className="font-semibold text-primary">₹{tripData.cost}</p>
+                  </div>
+                </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

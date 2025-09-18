@@ -9,6 +9,7 @@ export interface TripData {
   duration: number;
   timestamp: string;
   count: number; // aggregated trip count
+  cost: number; // Cost in INR
 }
 
 export interface StatsData {
@@ -16,6 +17,7 @@ export interface StatsData {
   avgDistance: number;
   peakHour: string;
   modeShare: { [key: string]: number };
+  avgCost: number;
 }
 
 // Kerala coordinates - centered on Kochi
@@ -33,7 +35,8 @@ export const mockTrips: TripData[] = [
     distance: 12.5,
     duration: 35,
     timestamp: "2024-09-17T08:30:00Z",
-    count: 245
+    count: 245,
+    cost: 25
   },
   {
     id: "2", 
@@ -44,7 +47,8 @@ export const mockTrips: TripData[] = [
     distance: 18.2,
     duration: 45,
     timestamp: "2024-09-17T09:15:00Z",
-    count: 189
+    count: 189,
+    cost: 15
   },
   // Trivandrum area
   {
@@ -56,7 +60,8 @@ export const mockTrips: TripData[] = [
     distance: 15.8,
     duration: 40,
     timestamp: "2024-09-17T08:45:00Z", 
-    count: 167
+    count: 167,
+    cost: 12
   },
   // Calicut area
   {
@@ -68,7 +73,8 @@ export const mockTrips: TripData[] = [
     distance: 8.9,
     duration: 25,
     timestamp: "2024-09-17T09:00:00Z",
-    count: 134
+    count: 134,
+    cost: 35
   },
   // Inter-city trips
   {
@@ -80,7 +86,8 @@ export const mockTrips: TripData[] = [
     distance: 220.5,
     duration: 240,
     timestamp: "2024-09-17T14:30:00Z",
-    count: 89
+    count: 89,
+    cost: 180
   },
   {
     id: "6",
@@ -91,7 +98,8 @@ export const mockTrips: TripData[] = [
     distance: 195.3,
     duration: 180,
     timestamp: "2024-09-17T07:00:00Z",
-    count: 76
+    count: 76,
+    cost: 120
   }
 ];
 
@@ -99,6 +107,9 @@ export const getMockStats = (filteredTrips: TripData[]): StatsData => {
   const totalTrips = filteredTrips.reduce((sum, trip) => sum + trip.count, 0);
   const avgDistance = filteredTrips.length > 0 
     ? filteredTrips.reduce((sum, trip) => sum + trip.distance * trip.count, 0) / totalTrips
+    : 0;
+  const avgCost = filteredTrips.length > 0 
+    ? filteredTrips.reduce((sum, trip) => sum + trip.cost * trip.count, 0) / totalTrips
     : 0;
   
   // Calculate mode share
@@ -116,7 +127,8 @@ export const getMockStats = (filteredTrips: TripData[]): StatsData => {
     totalTrips,
     avgDistance: Math.round(avgDistance * 10) / 10,
     peakHour: "8:30 AM",
-    modeShare
+    modeShare,
+    avgCost: Math.round(avgCost * 10) / 10
   };
 };
 

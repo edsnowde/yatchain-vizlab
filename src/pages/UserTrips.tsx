@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Clock, MapPin, Route } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Route, IndianRupee } from 'lucide-react';
 
 // Mock trip data for a specific user
 const mockUserTrips = [
@@ -26,6 +26,7 @@ const mockUserTrips = [
     purpose: 'Work',
     origin: 'Ernakulam',
     destination: 'Kakkanad',
+    cost: 15,
   },
   {
     id: 'T002',
@@ -37,6 +38,7 @@ const mockUserTrips = [
     purpose: 'Work',
     origin: 'Kakkanad',
     destination: 'Ernakulam',
+    cost: 15,
   },
   {
     id: 'T003',
@@ -48,6 +50,7 @@ const mockUserTrips = [
     purpose: 'Work',
     origin: 'Ernakulam',
     destination: 'Kakkanad',
+    cost: 25,
   },
   {
     id: 'T004',
@@ -59,6 +62,7 @@ const mockUserTrips = [
     purpose: 'Shopping',
     origin: 'Ernakulam',
     destination: 'Lulu Mall',
+    cost: 35,
   },
 ];
 
@@ -100,6 +104,7 @@ const UserTrips = () => {
 
   const totalTrips = mockUserTrips.length;
   const avgDuration = Math.round(mockUserTrips.reduce((sum, trip) => sum + trip.duration, 0) / totalTrips);
+  const avgCost = Math.round(mockUserTrips.reduce((sum, trip) => sum + trip.cost, 0) / totalTrips);
   const mostCommonMode = 'Bus'; // Would calculate from data
 
   return (
@@ -122,7 +127,7 @@ const UserTrips = () => {
 
       <div className="flex-1 p-6 overflow-auto space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
@@ -142,6 +147,18 @@ const UserTrips = () => {
                 <div>
                   <p className="text-2xl font-bold">{avgDuration} min</p>
                   <p className="text-sm text-muted-foreground">Avg Duration</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <IndianRupee className="h-8 w-8 text-primary" />
+                <div>
+                  <p className="text-2xl font-bold">₹{avgCost}</p>
+                  <p className="text-sm text-muted-foreground">Avg Cost</p>
                 </div>
               </div>
             </CardContent>
@@ -175,6 +192,7 @@ const UserTrips = () => {
                   <TableHead>End Time</TableHead>
                   <TableHead>Duration</TableHead>
                   <TableHead>Distance</TableHead>
+                  <TableHead>Cost</TableHead>
                   <TableHead>Mode</TableHead>
                   <TableHead>Purpose</TableHead>
                   <TableHead>Route</TableHead>
@@ -193,6 +211,7 @@ const UserTrips = () => {
                     <TableCell>{formatTime(trip.endTime)}</TableCell>
                     <TableCell>{trip.duration} min</TableCell>
                     <TableCell>{trip.distance} km</TableCell>
+                    <TableCell className="font-medium text-primary">₹{trip.cost}</TableCell>
                     <TableCell>
                       <Badge className={getModeColor(trip.mode)}>
                         {trip.mode}

@@ -246,6 +246,7 @@ const Users = () => {
                       <TableHead>Avg Distance</TableHead>
                       <TableHead>Favorite Mode</TableHead>
                       <TableHead>Last Active</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -258,6 +259,7 @@ const Users = () => {
                         onClick={() => {
                           setSelectedUser(user.id);
                         }}
+                        onDoubleClick={() => handleUserClick(user.id)}
                       >
                         <TableCell className="font-medium">{user.id}</TableCell>
                         <TableCell className="font-medium">{user.name}</TableCell>
@@ -270,6 +272,19 @@ const Users = () => {
                         <TableCell>{user.avgDistance} km</TableCell>
                         <TableCell>{user.favoriteMode}</TableCell>
                         <TableCell>{user.lastActive}</TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUserClick(user.id);
+                            }}
+                            className="text-xs"
+                          >
+                            View Trips
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, MapPin, Clock, Share2 } from 'lucide-react';
+import { TrendingUp, MapPin, IndianRupee, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsData } from '@/data/mockData';
 
@@ -60,22 +60,22 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
         </CardContent>
       </Card>
 
-      {/* Peak Hour */}
+      {/* Average Cost */}
       <Card className="group hover:shadow-hover transition-all duration-300 hover:-translate-y-1 bg-gradient-surface">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Peak Hour
+            Avg. Cost
           </CardTitle>
           <div className="p-2 bg-chart-orange/10 rounded-lg group-hover:bg-chart-orange/20 transition-colors">
-            <Clock className="h-4 w-4 text-chart-orange" />
+            <IndianRupee className="h-4 w-4 text-chart-orange" />
           </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            {stats.peakHour}
+            ₹{stats.avgCost}
           </div>
           <p className="text-xs text-muted-foreground">
-            Highest demand
+            Per trip average
           </p>
         </CardContent>
       </Card>
