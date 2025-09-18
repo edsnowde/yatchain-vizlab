@@ -86,11 +86,13 @@ export default {
         'card': 'var(--shadow-card)',
         'hover': 'var(--shadow-hover)',
         'focus': 'var(--shadow-focus)',
+        'depth': 'var(--shadow-depth)',
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
         'gradient-chart': 'var(--gradient-chart)',
         'gradient-surface': 'var(--gradient-surface)',
+        'gradient-glow': 'var(--gradient-glow)',
       },
       keyframes: {
         "accordion-down": {

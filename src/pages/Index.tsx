@@ -81,18 +81,7 @@ const Index = () => {
       
       <div className="flex h-[calc(100vh-4rem)] w-full">
         {/* Filter Sidebar */}
-        <FilterSidebar
-          selectedModes={selectedModes}
-          selectedPurposes={selectedPurposes}
-          startDate={startDate}
-          endDate={endDate}
-          onModesChange={setSelectedModes}
-          onPurposesChange={setSelectedPurposes}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onApplyFilters={handleApplyFilters}
-          onExportData={handleExportData}
-        />
+        <FilterSidebar />
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">

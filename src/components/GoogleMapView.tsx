@@ -15,10 +15,17 @@ declare global {
 
 interface GoogleMapViewProps {
   trips: TripData[];
+  showSingleTrip?: boolean;
+  tripPath?: Array<{ lat: number; lng: number; timestamp?: string }>;
 }
 
 // Google Maps component
-const GoogleMap: React.FC<{ trips: TripData[]; mapId: string }> = ({ trips, mapId }) => {
+const GoogleMap: React.FC<{ 
+  trips: TripData[]; 
+  mapId: string; 
+  showSingleTrip?: boolean;
+  tripPath?: Array<{ lat: number; lng: number; timestamp?: string }>;
+}> = ({ trips, mapId, showSingleTrip, tripPath }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const heatmapRef = useRef<google.maps.visualization.HeatmapLayer | null>(null);
@@ -59,85 +66,173 @@ const GoogleMap: React.FC<{ trips: TripData[]; mapId: string }> = ({ trips, mapI
   }, []);
 
   useEffect(() => {
-    if (!mapInstanceRef.current || !window.google || trips.length === 0) return;
+    if (!mapInstanceRef.current || !window.google) return;
 
-    // Clear existing markers
+    // Clear existing markers and heatmap
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
-
-    // Clear existing heatmap
     if (heatmapRef.current) {
       heatmapRef.current.setMap(null);
     }
 
-    // Create heatmap data
-    const heatmapData = trips.map(trip => ({
-      location: new google.maps.LatLng(trip.origin[1], trip.origin[0]),
-      weight: trip.count
-    }));
+    if (showSingleTrip && tripPath && tripPath.length >= 2) {
+      // Show single trip with start/end markers and path
+      const startPoint = tripPath[0];
+      const endPoint = tripPath[tripPath.length - 1];
 
-    // Add heatmap layer
-    const heatmap = new google.maps.visualization.HeatmapLayer({
-      data: heatmapData,
-      map: mapInstanceRef.current,
-      radius: 20,
-      opacity: 0.8,
-      gradient: [
-        'rgba(0, 255, 255, 0)',
-        'rgba(0, 255, 255, 1)',
-        'rgba(0, 191, 255, 1)',
-        'rgba(0, 127, 255, 1)',
-        'rgba(0, 63, 255, 1)',
-        'rgba(0, 0, 255, 1)',
-        'rgba(0, 0, 223, 1)',
-        'rgba(0, 0, 191, 1)',
-        'rgba(0, 0, 159, 1)',
-        'rgba(0, 0, 127, 1)',
-        'rgba(63, 0, 91, 1)',
-        'rgba(127, 0, 63, 1)',
-        'rgba(191, 0, 31, 1)',
-        'rgba(255, 0, 0, 1)'
-      ]
-    });
-
-    heatmapRef.current = heatmap;
-
-    // Add origin markers with info windows
-    trips.forEach((trip, index) => {
-      const marker = new google.maps.Marker({
-        position: { lat: trip.origin[1], lng: trip.origin[0] },
+      // Start marker (green)
+      const startMarker = new google.maps.Marker({
+        position: { lat: startPoint.lat, lng: startPoint.lng },
         map: mapInstanceRef.current,
-        title: `${trip.count} trips`,
+        title: 'Trip Start',
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          scale: Math.sqrt(trip.count) * 2,
-          fillColor: getColorByMode(trip.mode),
-          fillOpacity: 0.8,
+          scale: 12,
+          fillColor: '#10b981',
+          fillOpacity: 1,
           strokeColor: '#ffffff',
-          strokeWeight: 2
+          strokeWeight: 3,
         }
       });
 
-      const infoWindow = new google.maps.InfoWindow({
+      // End marker (red)
+      const endMarker = new google.maps.Marker({
+        position: { lat: endPoint.lat, lng: endPoint.lng },
+        map: mapInstanceRef.current,
+        title: 'Trip End',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: '#ef4444',
+          fillOpacity: 1,
+          strokeColor: '#ffffff',
+          strokeWeight: 3,
+        }
+      });
+
+      // Trip path polyline
+      const pathCoordinates = tripPath.map(point => ({
+        lat: point.lat,
+        lng: point.lng
+      }));
+
+      const tripPolyline = new google.maps.Polyline({
+        path: pathCoordinates,
+        geodesic: true,
+        strokeColor: '#3b82f6',
+        strokeOpacity: 1.0,
+        strokeWeight: 4,
+        map: mapInstanceRef.current
+      });
+
+      // Info windows
+      const startInfoWindow = new google.maps.InfoWindow({
         content: `
-          <div style="padding: 8px;">
-            <h4 style="margin: 0 0 8px 0; color: #1f2937;">Trip Details</h4>
-            <p style="margin: 4px 0; color: #4b5563;"><strong>Count:</strong> ${trip.count} trips</p>
-            <p style="margin: 4px 0; color: #4b5563;"><strong>Mode:</strong> ${trip.mode}</p>
-            <p style="margin: 4px 0; color: #4b5563;"><strong>Purpose:</strong> ${trip.purpose}</p>
-            <p style="margin: 4px 0; color: #4b5563;"><strong>Distance:</strong> ${trip.distance} km</p>
+          <div class="p-3">
+            <h3 class="font-semibold text-green-600 mb-2">Trip Start</h3>
+            <p class="text-sm">Time: ${startPoint.timestamp || 'N/A'}</p>
+            <p class="text-sm">Location: ${startPoint.lat.toFixed(4)}, ${startPoint.lng.toFixed(4)}</p>
           </div>
         `
       });
 
-      marker.addListener('click', () => {
-        infoWindow.open(mapInstanceRef.current, marker);
+      const endInfoWindow = new google.maps.InfoWindow({
+        content: `
+          <div class="p-3">
+            <h3 class="font-semibold text-red-600 mb-2">Trip End</h3>
+            <p class="text-sm">Time: ${endPoint.timestamp || 'N/A'}</p>
+            <p class="text-sm">Location: ${endPoint.lat.toFixed(4)}, ${endPoint.lng.toFixed(4)}</p>
+          </div>
+        `
       });
 
-      markersRef.current.push(marker);
-    });
+      startMarker.addListener('click', () => {
+        endInfoWindow.close();
+        startInfoWindow.open(mapInstanceRef.current, startMarker);
+      });
 
-  }, [trips]);
+      endMarker.addListener('click', () => {
+        startInfoWindow.close();
+        endInfoWindow.open(mapInstanceRef.current, endMarker);
+      });
+
+      markersRef.current.push(startMarker, endMarker);
+
+      // Fit bounds to show entire trip
+      const bounds = new google.maps.LatLngBounds();
+      pathCoordinates.forEach(point => bounds.extend(point));
+      mapInstanceRef.current.fitBounds(bounds);
+
+    } else if (trips.length > 0) {
+      // Show heatmap for multiple trips
+      const heatmapData = trips.map(trip => ({
+        location: new google.maps.LatLng(trip.origin[1], trip.origin[0]),
+        weight: trip.count
+      }));
+
+      // Add heatmap layer
+      const heatmap = new google.maps.visualization.HeatmapLayer({
+        data: heatmapData,
+        map: mapInstanceRef.current,
+        radius: 25,
+        opacity: 0.7,
+        gradient: [
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+      });
+
+      heatmapRef.current = heatmap;
+
+      // Add origin markers with info windows
+      trips.forEach((trip, index) => {
+        const marker = new google.maps.Marker({
+          position: { lat: trip.origin[1], lng: trip.origin[0] },
+          map: mapInstanceRef.current,
+          title: `${trip.count} trips`,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: Math.sqrt(trip.count) * 2,
+            fillColor: getColorByMode(trip.mode),
+            fillOpacity: 0.9,
+            strokeColor: '#ffffff',
+            strokeWeight: 2
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div class="p-3">
+              <h3 class="font-semibold mb-2">${trip.mode} Trip</h3>
+              <p class="text-sm">Purpose: ${trip.purpose}</p>
+              <p class="text-sm">Distance: ${trip.distance} km</p>
+              <p class="text-sm">Duration: ${trip.duration} min</p>
+              <p class="text-sm">Cost: ₹${trip.cost}</p>
+              <p class="text-sm">Count: ${trip.count}</p>
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(mapInstanceRef.current, marker);
+        });
+
+        markersRef.current.push(marker);
+      });
+    }
+  }, [trips, showSingleTrip, tripPath]);
 
   // Helper function to get color by transport mode
   const getColorByMode = (mode: string) => {
@@ -155,7 +250,7 @@ const GoogleMap: React.FC<{ trips: TripData[]; mapId: string }> = ({ trips, mapI
   return <div ref={mapRef} className="w-full h-full rounded-lg" />;
 };
 
-const GoogleMapView: React.FC<GoogleMapViewProps> = ({ trips }) => {
+const GoogleMapView: React.FC<GoogleMapViewProps> = ({ trips, showSingleTrip, tripPath }) => {
   const [apiKey, setApiKey] = useState('');
   const [tempApiKey, setTempApiKey] = useState('');
   const [showTokenInput, setShowTokenInput] = useState(true);
@@ -271,7 +366,12 @@ const GoogleMapView: React.FC<GoogleMapViewProps> = ({ trips }) => {
             return <div className="h-full flex items-center justify-center">Loading Google Maps...</div>;
           }}
         >
-          <GoogleMap trips={trips} mapId="trip-heatmap" />
+          <GoogleMap 
+            trips={trips} 
+            mapId="trip-heatmap" 
+            showSingleTrip={showSingleTrip}
+            tripPath={tripPath}
+          />
         </Wrapper>
       </CardContent>
     </Card>

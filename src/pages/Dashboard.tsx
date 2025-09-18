@@ -86,18 +86,7 @@ const Dashboard = () => {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Filter Sidebar */}
-        <FilterSidebar
-          selectedModes={selectedModes}
-          selectedPurposes={selectedPurposes}
-          startDate={startDate}
-          endDate={endDate}
-          onModesChange={setSelectedModes}
-          onPurposesChange={setSelectedPurposes}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onApplyFilters={handleApplyFilters}
-          onExportData={handleExportData}
-        />
+        <FilterSidebar />
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">

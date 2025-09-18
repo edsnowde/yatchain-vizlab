@@ -26,6 +26,8 @@ const mockAggregatedData = [
     tripCount: 245,
     avgDistance: 12.5,
     avgDuration: 35,
+    avgCost: 18,
+    totalCost: 4410,
     peakHour: '8:30 AM',
   },
   {
@@ -36,6 +38,8 @@ const mockAggregatedData = [
     tripCount: 189,
     avgDistance: 12.5,
     avgDuration: 38,
+    avgCost: 18,
+    totalCost: 3402,
     peakHour: '6:00 PM',
   },
   {
@@ -46,6 +50,8 @@ const mockAggregatedData = [
     tripCount: 167,
     avgDistance: 15.8,
     avgDuration: 25,
+    avgCost: 25,
+    totalCost: 4175,
     peakHour: '8:45 AM',
   },
   {
@@ -56,6 +62,8 @@ const mockAggregatedData = [
     tripCount: 134,
     avgDistance: 8.9,
     avgDuration: 20,
+    avgCost: 35,
+    totalCost: 4690,
     peakHour: '9:00 AM',
   },
 ];
@@ -275,6 +283,8 @@ const Export = () => {
                   <TableHead>Trip Count</TableHead>
                   <TableHead>Avg Distance</TableHead>
                   <TableHead>Avg Duration</TableHead>
+                  <TableHead>Avg Cost</TableHead>
+                  <TableHead>Total Cost</TableHead>
                   <TableHead>Peak Hour</TableHead>
                 </TableRow>
               </TableHeader>
@@ -297,6 +307,8 @@ const Export = () => {
                     <TableCell>{row.tripCount.toLocaleString()}</TableCell>
                     <TableCell>{row.avgDistance} km</TableCell>
                     <TableCell>{row.avgDuration} min</TableCell>
+                    <TableCell className="text-primary font-semibold">₹{row.avgCost}</TableCell>
+                    <TableCell className="text-primary font-semibold">₹{row.totalCost.toLocaleString()}</TableCell>
                     <TableCell>{row.peakHour}</TableCell>
                   </TableRow>
                 ))}

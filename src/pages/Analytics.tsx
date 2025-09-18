@@ -4,26 +4,34 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Calendar, TrendingUp, Users, MapPin } from 'lucide-react';
+import { Calendar, TrendingUp, Users, MapPin, IndianRupee } from 'lucide-react';
 import { getHourlyData, getPurposeData } from '@/data/mockData';
 
 // Mock analytics data
 const modeShareData = [
-  { mode: 'Bus', count: 520, percentage: 45 },
-  { mode: 'Metro', count: 290, percentage: 25 },
-  { mode: 'Two-Wheeler', count: 175, percentage: 15 },
-  { mode: 'Walk', count: 115, percentage: 10 },
-  { mode: 'Train', count: 60, percentage: 5 },
+  { mode: 'Bus', count: 520, percentage: 45, avgCost: 18 },
+  { mode: 'Metro', count: 290, percentage: 25, avgCost: 25 },
+  { mode: 'Two-Wheeler', count: 175, percentage: 15, avgCost: 35 },
+  { mode: 'Walk', count: 115, percentage: 10, avgCost: 0 },
+  { mode: 'Train', count: 60, percentage: 5, avgCost: 150 },
 ];
 
 const dailyTripsData = [
-  { date: 'Mon', trips: 1250 },
-  { date: 'Tue', trips: 1340 },
-  { date: 'Wed', trips: 1180 },
-  { date: 'Thu', trips: 1420 },
-  { date: 'Fri', trips: 1680 },
-  { date: 'Sat', trips: 980 },
-  { date: 'Sun', trips: 720 },
+  { date: 'Mon', trips: 1250, cost: 22450 },
+  { date: 'Tue', trips: 1340, cost: 24120 },
+  { date: 'Wed', trips: 1180, cost: 21240 },
+  { date: 'Thu', trips: 1420, cost: 25560 },
+  { date: 'Fri', trips: 1680, cost: 30240 },
+  { date: 'Sat', trips: 980, cost: 17640 },
+  { date: 'Sun', trips: 720, cost: 12960 },
+];
+
+const costAnalyticsData = [
+  { range: '₹0-10', count: 245, percentage: 28 },
+  { range: '₹11-25', count: 320, percentage: 37 },
+  { range: '₹26-50', count: 180, percentage: 21 },
+  { range: '₹51-100', count: 85, percentage: 10 },
+  { range: '₹100+', count: 30, percentage: 4 },
 ];
 
 const Analytics = () => {
@@ -113,10 +121,10 @@ const Analytics = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <Calendar className="h-8 w-8 text-primary" />
+                  <IndianRupee className="h-8 w-8 text-primary" />
                   <div>
-                    <p className="text-2xl font-bold">8:30 AM</p>
-                    <p className="text-sm text-muted-foreground">Peak Hour</p>
+                    <p className="text-2xl font-bold">₹24.5</p>
+                    <p className="text-sm text-muted-foreground">Avg Cost</p>
                   </div>
                 </div>
               </CardContent>
@@ -182,31 +190,55 @@ const Analytics = () => {
               </CardContent>
             </Card>
 
-            {/* Trip Purpose Pie Chart */}
+            {/* Cost Analysis Pie Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Trip Purpose Distribution</CardTitle>
+                <CardTitle>Cost Distribution Analysis</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={purposeData}
+                      data={costAnalyticsData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}%`}
+                      label={({ range, percentage }) => `${range}: ${percentage}%`}
                       outerRadius={80}
                       fill="#8884d8"
-                      dataKey="value"
+                      dataKey="count"
                     >
-                      {purposeData.map((entry, index) => (
+                      {costAnalyticsData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(value, name) => [value, 'Trips']} />
                     <Legend />
                   </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Daily Cost Trends */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Daily Cost Trends</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={dailyTripsData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip formatter={(value, name) => [
+                      name === 'cost' ? `₹${value.toLocaleString()}` : value,
+                      name === 'cost' ? 'Total Cost' : 'Trips'
+                    ]} />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="trips" fill="#1e40af" name="Trips" />
+                    <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#ea580c" strokeWidth={2} name="Cost (₹)" />
+                  </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Play, Download, Clock, MapPin, Route, Target, IndianRupee } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import GoogleMapView from '@/components/GoogleMapView';
 
 const TripDetail = () => {
   const { userId, tripId } = useParams();
@@ -143,26 +144,11 @@ const TripDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="h-[calc(100%-4rem)]">
-              <div className="h-full bg-muted rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Interactive Trip Map</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    This would show the actual trip path with start/end markers and 
-                    {isPlaying ? ' animated movement along the route.' : ' the complete route.'}
-                  </p>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center justify-center gap-2 text-sm">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span>Start: {tripData.origin.name}</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-sm">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <span>End: {tripData.destination.name}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <GoogleMapView 
+                trips={[]}
+                showSingleTrip={true}
+                tripPath={tripData.path}
+              />
             </CardContent>
           </Card>
         </div>
