@@ -10,6 +10,7 @@ import UserTrips from "./pages/UserTrips";
 import TripDetail from "./pages/TripDetail";
 import Analytics from "./pages/Analytics";
 import Export from "./pages/Export";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="users" element={<Users />} />

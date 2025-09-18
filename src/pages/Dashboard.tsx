@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import FilterSidebar from '@/components/FilterSidebar';
-import MapView from '@/components/MapView';
+import GoogleMapView from '@/components/GoogleMapView';
 import StatsCards from '@/components/StatsCards';
 import ChartsSection from '@/components/ChartsSection';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -102,22 +102,22 @@ const Dashboard = () => {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Stats Cards */}
-          <div className="p-6 pb-3">
+          <div className="p-6 pb-4">
             <StatsCards stats={stats} />
           </div>
 
-          {/* Main Panel: Map and Charts */}
-          <div className="flex-1 px-6 pb-6 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
-            {/* Map Section */}
-            <div className="xl:col-span-2">
-              <div className="h-full">
-                <MapView trips={filteredTrips} />
+          {/* Main Panel: Map and Charts with better spacing */}
+          <div className="flex-1 px-6 pb-6 grid grid-cols-1 xl:grid-cols-5 gap-6 min-h-0">
+            {/* Map Section - More space */}
+            <div className="xl:col-span-3">
+              <div className="h-full min-h-[600px]">
+                <GoogleMapView trips={filteredTrips} />
               </div>
             </div>
 
-            {/* Charts Section */}
-            <div className="xl:col-span-1">
-              <div className="h-full">
+            {/* Charts Section - Better proportioned */}
+            <div className="xl:col-span-2">
+              <div className="h-full min-h-[600px]">
                 <ChartsSection stats={stats} />
               </div>
             </div>

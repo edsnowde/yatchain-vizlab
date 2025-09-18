@@ -127,21 +127,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         {/* Transport Modes */}
         <div className="space-y-3">
           <Label className="text-base font-semibold text-foreground">Transport Modes</Label>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {transportModes.map(mode => (
-              <div key={mode} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`mode-${mode}`}
-                  checked={selectedModes.includes(mode)}
-                  onCheckedChange={() => handleModeToggle(mode)}
-                />
-                <Label
-                  htmlFor={`mode-${mode}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  {mode}
-                </Label>
-              </div>
+              <button
+                key={mode}
+                onClick={() => handleModeToggle(mode)}
+                className={cn(
+                  "yatrachain-toggle text-xs",
+                  selectedModes.includes(mode) && "active"
+                )}
+              >
+                {mode}
+              </button>
             ))}
           </div>
         </div>
@@ -149,21 +146,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         {/* Trip Purposes */}
         <div className="space-y-3">
           <Label className="text-base font-semibold text-foreground">Trip Purpose</Label>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-2">
             {tripPurposes.map(purpose => (
-              <div key={purpose} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`purpose-${purpose}`}
-                  checked={selectedPurposes.includes(purpose)}
-                  onCheckedChange={() => handlePurposeToggle(purpose)}
-                />
-                <Label
-                  htmlFor={`purpose-${purpose}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  {purpose}
-                </Label>
-              </div>
+              <button
+                key={purpose}
+                onClick={() => handlePurposeToggle(purpose)}
+                className={cn(
+                  "yatrachain-toggle text-sm",
+                  selectedPurposes.includes(purpose) && "active"
+                )}
+              >
+                {purpose}
+              </button>
             ))}
           </div>
         </div>
@@ -173,7 +167,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       <div className="p-6 border-t border-border space-y-3">
         <Button 
           onClick={onApplyFilters}
-          className="w-full bg-gradient-primary hover:bg-primary-hover transition-all duration-200"
+          className="w-full yatrachain-button bg-gradient-primary hover:bg-primary-hover"
         >
           <BarChart3 className="mr-2 h-4 w-4" />
           Apply Filters
@@ -182,7 +176,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         <Button 
           variant="outline" 
           onClick={onExportData}
-          className="w-full hover:bg-accent hover:text-accent-foreground transition-all duration-200"
+          className="w-full yatrachain-button hover:bg-secondary/10 hover:text-secondary hover:border-secondary"
         >
           <Download className="mr-2 h-4 w-4" />
           Export CSV

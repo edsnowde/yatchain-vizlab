@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, User, MapPin, Clock } from 'lucide-react';
+import { Search, User, Save, Edit, Phone, Mail } from 'lucide-react';
 
 // Mock user data
 const mockUsers = [
@@ -62,6 +63,12 @@ const mockUsers = [
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [userDetails, setUserDetails] = useState({
+    name: 'Dr. Priya Sharma',
+    email: 'priya.sharma@natpac.gov.in',
+    phone: '+91 9876543210'
+  });
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
   const filteredUsers = mockUsers.filter(user =>
@@ -84,6 +91,11 @@ const Users = () => {
 
   const selectedUserData = selectedUser ? mockUsers.find(u => u.id === selectedUser) : null;
 
+  const handleSaveDetails = () => {
+    setIsEditing(false);
+    // Here you would typically save to backend
+  };
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top bar */}
@@ -93,109 +105,147 @@ const Users = () => {
             <h1 className="text-2xl font-bold text-foreground">Users</h1>
             <Breadcrumbs />
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative w-64">
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* User Details Panel */}
+        <div className="w-80 border-r p-6 bg-card">
+          <Card className="yatrachain-card">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Profile Details
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="yatrachain-button"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="name" className="text-sm font-medium text-foreground">Name</Label>
+                  <Input
+                    id="name"
+                    value={userDetails.name}
+                    onChange={(e) => setUserDetails(prev => ({...prev, name: e.target.value}))}
+                    disabled={!isEditing}
+                    className="mt-1 transition-all duration-200 focus:shadow-focus"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={userDetails.email}
+                    onChange={(e) => setUserDetails(prev => ({...prev, email: e.target.value}))}
+                    disabled={!isEditing}
+                    className="mt-1 transition-all duration-200 focus:shadow-focus"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="phone" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={userDetails.phone}
+                    onChange={(e) => setUserDetails(prev => ({...prev, phone: e.target.value}))}
+                    disabled={!isEditing}
+                    className="mt-1 transition-all duration-200 focus:shadow-focus"
+                  />
+                </div>
+
+                {isEditing && (
+                  <Button
+                    onClick={handleSaveDetails}
+                    className="w-full yatrachain-button bg-gradient-primary"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Search Bar */}
+          <div className="p-6 pb-0">
+            <div className="relative w-full max-w-md">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
+                className="pl-9 transition-all duration-200 focus:shadow-focus"
               />
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Main Table */}
-        <div className="flex-1 p-6 overflow-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Directory ({filteredUsers.length} users)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Total Trips</TableHead>
-                    <TableHead>Avg Distance</TableHead>
-                    <TableHead>Favorite Mode</TableHead>
-                    <TableHead>Last Active</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow
-                      key={user.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => {
-                        setSelectedUser(user.id);
-                        handleUserClick(user.id);
-                      }}
-                    >
-                      <TableCell className="font-medium">{user.id}</TableCell>
-                      <TableCell>
-                        <Badge className={getCategoryColor(user.category)}>
-                          {user.category}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.tripCount}</TableCell>
-                      <TableCell>{user.avgDistance} km</TableCell>
-                      <TableCell>{user.favoriteMode}</TableCell>
-                      <TableCell>{user.lastActive}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Panel - User Preview */}
-        {selectedUserData && (
-          <div className="w-80 border-l p-6 bg-card">
-            <Card>
+          {/* User Table */}
+          <div className="flex-1 p-6 overflow-auto">
+            <Card className="yatrachain-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  {selectedUserData.id} Preview
-                </CardTitle>
+                <CardTitle>User Directory ({filteredUsers.length} users)</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Category</p>
-                    <Badge className={getCategoryColor(selectedUserData.category)}>
-                      {selectedUserData.category}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Total Trips</p>
-                    <p className="font-semibold">{selectedUserData.tripCount}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Avg Distance</p>
-                    <p className="font-semibold">{selectedUserData.avgDistance} km</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Favorite Mode</p>
-                    <p className="font-semibold">{selectedUserData.favoriteMode}</p>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full" 
-                  onClick={() => handleUserClick(selectedUserData.id)}
-                >
-                  View All Trips
-                </Button>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Total Trips</TableHead>
+                      <TableHead>Avg Distance</TableHead>
+                      <TableHead>Favorite Mode</TableHead>
+                      <TableHead>Last Active</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow
+                        key={user.id}
+                        className="cursor-pointer hover:bg-accent/5 transition-colors duration-200"
+                        onClick={() => {
+                          setSelectedUser(user.id);
+                          handleUserClick(user.id);
+                        }}
+                      >
+                        <TableCell className="font-medium">{user.id}</TableCell>
+                        <TableCell>
+                          <Badge className={getCategoryColor(user.category)}>
+                            {user.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{user.tripCount}</TableCell>
+                        <TableCell>{user.avgDistance} km</TableCell>
+                        <TableCell>{user.favoriteMode}</TableCell>
+                        <TableCell>{user.lastActive}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
