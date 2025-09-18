@@ -20,6 +20,9 @@ import { Search, User, Save, Edit, Phone, Mail } from 'lucide-react';
 const mockUsers = [
   {
     id: 'U001',
+    name: 'Rajesh Kumar',
+    email: 'rajesh.kumar@example.com',
+    phone: '+91 9876543210',
     category: 'Worker',
     tripCount: 245,
     lastActive: '2024-09-17',
@@ -27,7 +30,10 @@ const mockUsers = [
     favoriteMode: 'Bus',
   },
   {
-    id: 'U002', 
+    id: 'U002',
+    name: 'Priya Nair',
+    email: 'priya.nair@example.com', 
+    phone: '+91 9876543211',
     category: 'Student',
     tripCount: 189,
     lastActive: '2024-09-16',
@@ -36,6 +42,9 @@ const mockUsers = [
   },
   {
     id: 'U003',
+    name: 'John Thomas',
+    email: 'john.thomas@example.com',
+    phone: '+91 9876543212',
     category: 'Tourist',
     tripCount: 76,
     lastActive: '2024-09-15',
@@ -44,6 +53,9 @@ const mockUsers = [
   },
   {
     id: 'U004',
+    name: 'Sarah Abraham',
+    email: 'sarah.abraham@example.com',
+    phone: '+91 9876543213',
     category: 'Worker',
     tripCount: 312,
     lastActive: '2024-09-17',
@@ -52,6 +64,9 @@ const mockUsers = [
   },
   {
     id: 'U005',
+    name: 'Mohammed Ali',
+    email: 'mohammed.ali@example.com',
+    phone: '+91 9876543214',
     category: 'Student',
     tripCount: 134,
     lastActive: '2024-09-17',
@@ -62,12 +77,7 @@ const mockUsers = [
 
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [userDetails, setUserDetails] = useState({
-    name: 'Dr. Priya Sharma',
-    email: 'priya.sharma@natpac.gov.in',
-    phone: '+91 9876543210'
-  });
+  const [selectedUser, setSelectedUser] = useState<string | null>('U001');
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
@@ -96,6 +106,16 @@ const Users = () => {
     // Here you would typically save to backend
   };
 
+  const handleUserDetailsChange = (field: string, value: string) => {
+    if (selectedUserData) {
+      // In a real app, this would update the backend
+      const userIndex = mockUsers.findIndex(u => u.id === selectedUser);
+      if (userIndex !== -1) {
+        (mockUsers[userIndex] as any)[field] = value;
+      }
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top bar */}
@@ -116,71 +136,80 @@ const Users = () => {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <User className="h-5 w-5 text-primary" />
-                  Profile Details
+                  User Details
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="yatrachain-button"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                {selectedUserData && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="yatrachain-button"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="name" className="text-sm font-medium text-foreground">Name</Label>
-                  <Input
-                    id="name"
-                    value={userDetails.name}
-                    onChange={(e) => setUserDetails(prev => ({...prev, name: e.target.value}))}
-                    disabled={!isEditing}
-                    className="mt-1 transition-all duration-200 focus:shadow-focus"
-                  />
-                </div>
+              {selectedUserData ? (
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="name" className="text-sm font-medium text-foreground">Name</Label>
+                    <Input
+                      id="name"
+                      value={selectedUserData.name}
+                      onChange={(e) => handleUserDetailsChange('name', e.target.value)}
+                      disabled={!isEditing}
+                      className="mt-1 transition-all duration-200 focus:shadow-focus"
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={userDetails.email}
-                    onChange={(e) => setUserDetails(prev => ({...prev, email: e.target.value}))}
-                    disabled={!isEditing}
-                    className="mt-1 transition-all duration-200 focus:shadow-focus"
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={selectedUserData.email}
+                      onChange={(e) => handleUserDetailsChange('email', e.target.value)}
+                      disabled={!isEditing}
+                      className="mt-1 transition-all duration-200 focus:shadow-focus"
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="phone" className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={userDetails.phone}
-                    onChange={(e) => setUserDetails(prev => ({...prev, phone: e.target.value}))}
-                    disabled={!isEditing}
-                    className="mt-1 transition-all duration-200 focus:shadow-focus"
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={selectedUserData.phone}
+                      onChange={(e) => handleUserDetailsChange('phone', e.target.value)}
+                      disabled={!isEditing}
+                      className="mt-1 transition-all duration-200 focus:shadow-focus"
+                    />
+                  </div>
 
-                {isEditing && (
-                  <Button
-                    onClick={handleSaveDetails}
-                    className="w-full yatrachain-button bg-gradient-primary"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </Button>
-                )}
-              </div>
+                  {isEditing && (
+                    <Button
+                      onClick={handleSaveDetails}
+                      className="w-full yatrachain-button bg-gradient-primary"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <User className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                  <p>Select a user to view details</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -211,6 +240,7 @@ const Users = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>User ID</TableHead>
+                      <TableHead>Name</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Total Trips</TableHead>
                       <TableHead>Avg Distance</TableHead>
@@ -222,13 +252,15 @@ const Users = () => {
                     {filteredUsers.map((user) => (
                       <TableRow
                         key={user.id}
-                        className="cursor-pointer hover:bg-accent/5 transition-colors duration-200"
+                        className={`cursor-pointer hover:bg-accent/5 transition-colors duration-200 ${
+                          selectedUser === user.id ? 'bg-accent/10 border-l-2 border-primary' : ''
+                        }`}
                         onClick={() => {
                           setSelectedUser(user.id);
-                          handleUserClick(user.id);
                         }}
                       >
                         <TableCell className="font-medium">{user.id}</TableCell>
+                        <TableCell className="font-medium">{user.name}</TableCell>
                         <TableCell>
                           <Badge className={getCategoryColor(user.category)}>
                             {user.category}
