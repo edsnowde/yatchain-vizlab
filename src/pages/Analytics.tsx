@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Calendar, TrendingUp, Users, MapPin, IndianRupee } from 'lucide-react';
 import { getHourlyData, getPurposeData } from '@/data/mockData';
+import { motion } from 'framer-motion';
 
 // Mock analytics data
 const modeShareData = [
@@ -40,13 +41,32 @@ const Analytics = () => {
 
   const hourlyData = getHourlyData();
   const purposeData = getPurposeData();
-
   const COLORS = ['#1e40af', '#059669', '#ea580c', '#7c3aed', '#dc2626'];
 
+  // Framer Motion Variants
+  const container = {
+    hidden: {},
+    show: { 
+      transition: { 
+        staggerChildren: 0.15 
+      } 
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <div className="h-screen flex flex-col">
+    <motion.div
+      className="h-screen flex flex-col"
+      initial="hidden"
+      animate="show"
+      variants={container}
+    >
       {/* Top bar */}
-      <div className="border-b bg-card p-4">
+      <motion.div variants={item} className="border-b bg-card p-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Analytics Dashboard</h1>
@@ -58,12 +78,23 @@ const Analytics = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7days">Last 7 days</SelectItem>
+              <SelectItem value="30days">Daily</SelectItem>
+                <SelectItem value="7days">Weekly</SelectItem>
+                <SelectItem value="90days">Monthly</SelectItem>
+                <SelectItem value="90days">Quarter Yearly</SelectItem>
+                <SelectItem value="90days">Yearly </SelectItem>
+                <SelectItem value="90days">Last 5 years</SelectItem>
+
+                {/* <SelectItem value="7days">Last 7 days</SelectItem>
                 <SelectItem value="30days">Last 30 days</SelectItem>
                 <SelectItem value="90days">Last 90 days</SelectItem>
+                                <SelectItem value="90days">Last 6 months </SelectItem>
+                <SelectItem value="90days">Last 12 months</SelectItem> */}
+
+
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedMetric} onValueChange={setSelectedMetric}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -76,211 +107,144 @@ const Analytics = () => {
             </Select>
           </div>
         </div>
+      </motion.div>
+
+      <div className="flex-1 p-6 overflow-auto space-y-6">
+        {/* Key Metrics */}
+        <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[{
+            icon: <TrendingUp className="h-8 w-8 text-primary" />,
+            value: '8,570',
+            label: 'Total Trips'
+          }, {
+            icon: <Users className="h-8 w-8 text-primary" />,
+            value: '1,245',
+            label: 'Active Users'
+          }, {
+            icon: <MapPin className="h-8 w-8 text-primary" />,
+            value: '15.2 km',
+            label: 'Avg Distance'
+          }, {
+            icon: <IndianRupee className="h-8 w-8 text-primary" />,
+            value: '₹24.5',
+            label: 'Avg Cost'
+          }].map((metric, idx) => (
+            <motion.div key={idx} variants={item}>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    {metric.icon}
+                    <div>
+                      <p className="text-2xl font-bold">{metric.value}</p>
+                      <p className="text-sm text-muted-foreground">{metric.label}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Charts Grid */}
+        <motion.div variants={container} className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {[{
+            title: 'Mode Share Distribution',
+            chart: (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={modeShareData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mode" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#1e40af" />
+                </BarChart>
+              </ResponsiveContainer>
+            )
+          }, {
+            title: 'Daily Trip Patterns',
+            chart: (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={dailyTripsData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="trips" stroke="#1e40af" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            )
+          }, {
+            title: 'Hourly Demand Pattern',
+            chart: (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={hourlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="hour" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="trips" fill="#059669" />
+                </BarChart>
+              </ResponsiveContainer>
+            )
+          }, {
+            title: 'Cost Distribution Analysis',
+            chart: (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={costAnalyticsData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ range, percentage }) => `${range}: ${percentage}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="count"
+                  >
+                    {costAnalyticsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value, name) => [value, 'Trips']} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )
+          }, {
+            title: 'Daily Cost Trends',
+            chart: (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={dailyTripsData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip formatter={(value, name) => [
+                    name === 'cost' ? `₹${value.toLocaleString()}` : value,
+                    name === 'cost' ? 'Total Cost' : 'Trips'
+                  ]} />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="trips" fill="#1e40af" name="Trips" />
+                  <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#ea580c" strokeWidth={2} name="Cost (₹)" />
+                </LineChart>
+              </ResponsiveContainer>
+            )
+          }].map((chartObj, idx) => (
+            <motion.div key={idx} variants={item}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{chartObj.title}</CardTitle>
+                </CardHeader>
+                <CardContent>{chartObj.chart}</CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
-
-      <div className="flex-1 p-6 overflow-auto">
-        <div className="space-y-6">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-2xl font-bold">8,570</p>
-                    <p className="text-sm text-muted-foreground">Total Trips</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <Users className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-2xl font-bold">1,245</p>
-                    <p className="text-sm text-muted-foreground">Active Users</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-2xl font-bold">15.2 km</p>
-                    <p className="text-sm text-muted-foreground">Avg Distance</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <IndianRupee className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-2xl font-bold">₹24.5</p>
-                    <p className="text-sm text-muted-foreground">Avg Cost</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {/* Mode Share Bar Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Mode Share Distribution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={modeShareData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="mode" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="count" fill="#1e40af" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Daily Trips Line Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Trip Patterns</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dailyTripsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="trips" stroke="#1e40af" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Hourly Demand */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Hourly Demand Pattern</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={hourlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="hour" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="trips" fill="#059669" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Cost Analysis Pie Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Distribution Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={costAnalyticsData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ range, percentage }) => `${range}: ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="count"
-                    >
-                      {costAnalyticsData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value, name) => [value, 'Trips']} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Daily Cost Trends */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Cost Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dailyTripsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip formatter={(value, name) => [
-                      name === 'cost' ? `₹${value.toLocaleString()}` : value,
-                      name === 'cost' ? 'Total Cost' : 'Trips'
-                    ]} />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="trips" fill="#1e40af" name="Trips" />
-                    <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#ea580c" strokeWidth={2} name="Cost (₹)" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Additional Analytics Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Trip Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-                <div>
-                  <h4 className="font-semibold mb-2">Peak Hours</h4>
-                  <ul className="space-y-1 text-muted-foreground">
-                    <li>Morning: 8:00 - 10:00 AM</li>
-                    <li>Evening: 5:00 - 7:00 PM</li>
-                    <li>Weekend: 2:00 - 4:00 PM</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Popular Routes</h4>
-                  <ul className="space-y-1 text-muted-foreground">
-                    <li>Ernakulam ↔ Kakkanad</li>
-                    <li>Trivandrum ↔ Technopark</li>
-                    <li>Calicut ↔ Cyberpark</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Mode Preferences</h4>
-                  <ul className="space-y-1 text-muted-foreground">
-                    <li>Work trips: Bus (60%)</li>
-                    <li>Leisure trips: Two-Wheeler (40%)</li>
-                    <li>Education: Metro (55%)</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

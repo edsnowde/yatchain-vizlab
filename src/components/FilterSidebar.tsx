@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -6,58 +6,44 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { X, Filter, MapPin, Clock, Route, Target, IndianRupee } from 'lucide-react';
 
-const FilterSidebar = () => {
-  const [selectedModes, setSelectedModes] = useState<string[]>([]);
-  const [selectedPurposes, setSelectedPurposes] = useState<string[]>([]);
-  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState<string[]>([]);
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-  const [costRange, setCostRange] = useState<number[]>([0, 500]);
+const transportModes = ['Bus', 'Metro', 'Train', 'Walk', 'Two-Wheeler', 'Car', 'Auto-Rickshaw'];
+const tripPurposes = ['Work', 'Education', 'Shopping', 'Leisure', 'Healthcare', 'Other'];
+const timeOfDayOptions = [
+  'Early Morning (5-8 AM)',
+  'Morning (8-12 PM)',
+  'Afternoon (12-5 PM)',
+  'Evening (5-9 PM)',
+  'Night (9 PM-5 AM)'
+];
+const districts = ['Kochi', 'Trivandrum', 'Calicut', 'Thrissur', 'Kollam', 'Palakkad'];
 
-  const transportModes = ['Bus', 'Metro', 'Train', 'Walk', 'Two-Wheeler', 'Car', 'Auto-Rickshaw'];
-  const tripPurposes = ['Work', 'Education', 'Shopping', 'Leisure', 'Healthcare', 'Other'];
-  const timeOfDayOptions = ['Early Morning (5-8 AM)', 'Morning (8-12 PM)', 'Afternoon (12-5 PM)', 'Evening (5-9 PM)', 'Night (9 PM-5 AM)'];
-  const districts = ['Kochi', 'Trivandrum', 'Calicut', 'Thrissur', 'Kollam', 'Palakkad'];
+interface FilterSidebarProps {
+  selectedModes: string[];
+  selectedPurposes: string[];
+  selectedTimeOfDay: string[];
+  selectedDistricts: string[];
+  costRange: number[];
+  onToggleMode: (mode: string) => void;
+  onTogglePurpose: (purpose: string) => void;
+  onToggleTimeOfDay: (time: string) => void;
+  onToggleDistrict: (district: string) => void;
+  onCostRangeChange: (range: number[]) => void;
+  onClearAll: () => void;
+}
 
-  const toggleMode = (mode: string) => {
-    setSelectedModes(prev => 
-      prev.includes(mode) 
-        ? prev.filter(m => m !== mode)
-        : [...prev, mode]
-    );
-  };
-
-  const togglePurpose = (purpose: string) => {
-    setSelectedPurposes(prev => 
-      prev.includes(purpose) 
-        ? prev.filter(p => p !== purpose)
-        : [...prev, purpose]
-    );
-  };
-
-  const toggleTimeOfDay = (time: string) => {
-    setSelectedTimeOfDay(prev => 
-      prev.includes(time) 
-        ? prev.filter(t => t !== time)
-        : [...prev, time]
-    );
-  };
-
-  const toggleDistrict = (district: string) => {
-    setSelectedDistricts(prev => 
-      prev.includes(district) 
-        ? prev.filter(d => d !== district)
-        : [...prev, district]
-    );
-  };
-
-  const clearAllFilters = () => {
-    setSelectedModes([]);
-    setSelectedPurposes([]);
-    setSelectedTimeOfDay([]);
-    setSelectedDistricts([]);
-    setCostRange([0, 500]);
-  };
-
+const FilterSidebar: React.FC<FilterSidebarProps> = ({
+  selectedModes,
+  selectedPurposes,
+  selectedTimeOfDay,
+  selectedDistricts,
+  costRange,
+  onToggleMode,
+  onTogglePurpose,
+  onToggleTimeOfDay,
+  onToggleDistrict,
+  onCostRangeChange,
+  onClearAll,
+}) => {
   return (
     <div className="w-80 bg-background border-r p-6 space-y-6 overflow-y-auto yatrachain-animate-in">
       {/* Header */}
@@ -88,7 +74,7 @@ const FilterSidebar = () => {
             {transportModes.map(mode => (
               <button
                 key={mode}
-                onClick={() => toggleMode(mode)}
+                onClick={() => onToggleMode(mode)}
                 className={`yatrachain-toggle ${selectedModes.includes(mode) ? 'active' : ''}`}
               >
                 {mode}
@@ -111,7 +97,7 @@ const FilterSidebar = () => {
             {tripPurposes.map(purpose => (
               <button
                 key={purpose}
-                onClick={() => togglePurpose(purpose)}
+                onClick={() => onTogglePurpose(purpose)}
                 className={`yatrachain-toggle ${selectedPurposes.includes(purpose) ? 'active' : ''}`}
               >
                 {purpose}
@@ -134,7 +120,7 @@ const FilterSidebar = () => {
             {timeOfDayOptions.map(time => (
               <button
                 key={time}
-                onClick={() => toggleTimeOfDay(time)}
+                onClick={() => onToggleTimeOfDay(time)}
                 className={`yatrachain-toggle w-full text-xs ${selectedTimeOfDay.includes(time) ? 'active' : ''}`}
               >
                 {time}
@@ -157,7 +143,7 @@ const FilterSidebar = () => {
             {districts.map(district => (
               <button
                 key={district}
-                onClick={() => toggleDistrict(district)}
+                onClick={() => onToggleDistrict(district)}
                 className={`yatrachain-toggle text-sm ${selectedDistricts.includes(district) ? 'active' : ''}`}
               >
                 {district}
@@ -179,7 +165,7 @@ const FilterSidebar = () => {
           <div className="px-2">
             <Slider
               value={costRange}
-              onValueChange={setCostRange}
+              onValueChange={onCostRangeChange}
               max={500}
               step={10}
               className="w-full"
@@ -198,8 +184,8 @@ const FilterSidebar = () => {
       <Separator />
 
       {/* Active Filters Summary */}
-      {(selectedModes.length > 0 || selectedPurposes.length > 0 || 
-        selectedTimeOfDay.length > 0 || selectedDistricts.length > 0 || 
+      {(selectedModes.length !== transportModes.length || selectedPurposes.length !== tripPurposes.length ||
+        selectedTimeOfDay.length > 0 || selectedDistricts.length > 0 ||
         costRange[0] > 0 || costRange[1] < 500) && (
         <Card className="yatrachain-card">
           <CardHeader className="pb-3">
@@ -214,7 +200,7 @@ const FilterSidebar = () => {
                     variant="ghost"
                     size="sm"
                     className="h-auto p-0 ml-1 hover:bg-transparent"
-                    onClick={() => toggleMode(mode)}
+                    onClick={() => onToggleMode(mode)}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -227,7 +213,7 @@ const FilterSidebar = () => {
                     variant="ghost"
                     size="sm"
                     className="h-auto p-0 ml-1 hover:bg-transparent"
-                    onClick={() => togglePurpose(purpose)}
+                    onClick={() => onTogglePurpose(purpose)}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -240,7 +226,7 @@ const FilterSidebar = () => {
                     variant="ghost"
                     size="sm"
                     className="h-auto p-0 ml-1 hover:bg-transparent"
-                    onClick={() => toggleTimeOfDay(time)}
+                    onClick={() => onToggleTimeOfDay(time)}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -253,7 +239,7 @@ const FilterSidebar = () => {
                     variant="ghost"
                     size="sm"
                     className="h-auto p-0 ml-1 hover:bg-transparent"
-                    onClick={() => toggleDistrict(district)}
+                    onClick={() => onToggleDistrict(district)}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -266,7 +252,7 @@ const FilterSidebar = () => {
                     variant="ghost"
                     size="sm"
                     className="h-auto p-0 ml-1 hover:bg-transparent"
-                    onClick={() => setCostRange([0, 500])}
+                    onClick={() => onCostRangeChange([0, 500])}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -275,7 +261,7 @@ const FilterSidebar = () => {
             </div>
             <Button 
               variant="outline" 
-              onClick={clearAllFilters}
+              onClick={onClearAll}
               className="w-full text-sm yatrachain-button"
             >
               Clear All Filters

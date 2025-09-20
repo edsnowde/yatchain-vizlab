@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -6,14 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Play, Download, Clock, MapPin, Route, Target, IndianRupee } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
+
 import GoogleMapView from '@/components/GoogleMapView';
 
 const TripDetail = () => {
   const { userId, tripId } = useParams();
   const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentPath, setCurrentPath] = useState<any[]>([]);
+  const [animationIndex, setAnimationIndex] = useState(0);
 
-  // Mock trip detail data
   const tripData = {
     id: tripId,
     userId: userId,
@@ -35,34 +38,37 @@ const TripDetail = () => {
     ]
   };
 
-  const handleBackClick = () => {
-    navigate(`/users/${userId}/trips`);
-  };
+  const handleBackClick = () => navigate(`/users/${userId}/trips`);
 
   const handlePlayTrip = () => {
+    if (!isPlaying) {
+      setCurrentPath([tripData.path[0]]);
+      setAnimationIndex(1);
+      toast({ title: "Playing Trip Animation", description: "Watch the trip path being traced on the map" });
+    } else {
+      toast({ title: "Trip Animation Stopped", description: "Animation has been paused" });
+    }
     setIsPlaying(!isPlaying);
-    toast({
-      title: isPlaying ? "Trip Animation Stopped" : "Playing Trip Animation",
-      description: isPlaying ? "Animation has been paused" : "Watch the trip path being traced on the map",
-    });
   };
 
-  const handleExportTrip = () => {
-    const exportData = {
-      tripId: tripData.id,
-      userId: tripData.userId,
-      startTime: tripData.startTime,
-      endTime: tripData.endTime,
-      duration: tripData.duration,
-      distance: tripData.distance,
-      mode: tripData.mode,
-      purpose: tripData.purpose,
-      origin: tripData.origin,
-      destination: tripData.destination,
-      path: tripData.path
-    };
+  useEffect(() => {
+    if (!isPlaying) return;
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    if (animationIndex >= tripData.path.length) {
+      setIsPlaying(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentPath((prev) => [...prev, tripData.path[animationIndex]]);
+      setAnimationIndex((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, animationIndex]);
+
+  const handleExportTrip = () => {
+    const blob = new Blob([JSON.stringify(tripData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -71,27 +77,14 @@ const TripDetail = () => {
     link.click();
     document.body.removeChild(link);
 
-    toast({
-      title: "Trip Exported",
-      description: "Trip data has been exported as JSON file",
-    });
+    toast({ title: "Trip Exported", description: "Trip data has been exported as JSON file" });
   };
 
-  const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const formatTime = (timestamp: string) =>
+    new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  const formatDate = (timestamp: string) =>
+    new Date(timestamp).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   const getModeColor = (mode: string) => {
     switch (mode) {
@@ -104,63 +97,61 @@ const TripDetail = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Top bar */}
-      <div className="border-b bg-card p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Top Bar */}
+      <div className="border-b px-6 py-4 bg-gradient-to-r from-indigo-100 via-indigo-50 to-indigo-100 shadow-sm flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <motion.div whileHover={{ scale: 1.05 }}>
             <Button variant="ghost" size="sm" onClick={handleBackClick}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Trips
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Trip #{tripId} (User #{userId})
-              </h1>
-              <Breadcrumbs />
-            </div>
+          </motion.div>
+          <div>
+            <h1 className="text-2xl font-bold text-indigo-900">Trip #{tripId} (User #{userId})</h1>
+            <Breadcrumbs />
           </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex items-center gap-2">
+          <motion.div whileHover={{ scale: 1.05 }}>
             <Button variant="outline" onClick={handlePlayTrip}>
               <Play className="h-4 w-4 mr-2" />
               {isPlaying ? 'Stop' : 'Play'} Trip
             </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }}>
             <Button variant="outline" onClick={handleExportTrip}>
               <Download className="h-4 w-4 mr-2" />
               Export Trip
             </Button>
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Main Map Area */}
-        <div className="flex-1 p-6">
-          <Card className="h-full">
+      <div className="flex flex-1 overflow-hidden gap-6 p-6">
+        {/* Map Panel */}
+        <motion.div className="flex-1 h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+          <Card className="h-full rounded-2xl shadow-lg bg-white">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Route className="h-5 w-5" />
+                <Route className="h-5 w-5 text-indigo-600" />
                 Trip Path Visualization
               </CardTitle>
             </CardHeader>
             <CardContent className="h-[calc(100%-4rem)]">
-              <GoogleMapView 
-                trips={[]}
-                showSingleTrip={true}
-                tripPath={tripData.path}
-              />
+              <GoogleMapView trips={[]} showSingleTrip tripPath={currentPath} />
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
         {/* Trip Metadata Panel */}
-        <div className="w-80 border-l p-6 bg-card overflow-auto">
-          <div className="space-y-6">
-            {/* Basic Info */}
-            <Card>
+        <div className="w-80 overflow-auto space-y-6">
+          {/* Trip Info */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <Card className="rounded-2xl shadow-lg bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
+                  <Clock className="h-5 w-5 text-indigo-600" />
                   Trip Details
                 </CardTitle>
               </CardHeader>
@@ -184,23 +175,19 @@ const TripDetail = () => {
                     <p className="text-sm text-muted-foreground">Duration</p>
                     <p className="font-semibold">{tripData.duration} min</p>
                   </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Distance</p>
                     <p className="font-semibold">{tripData.distance} km</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Cost</p>
-                    <p className="font-semibold text-primary">₹{tripData.cost}</p>
+                    <p className="font-semibold text-indigo-600">₹{tripData.cost}</p>
                   </div>
-                </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Mode</p>
-                    <Badge className={getModeColor(tripData.mode)}>
-                      {tripData.mode}
-                    </Badge>
+                    <Badge className={getModeColor(tripData.mode)}>{tripData.mode}</Badge>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Purpose</p>
@@ -209,59 +196,63 @@ const TripDetail = () => {
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
 
-            {/* Location Info */}
-            <Card>
+          {/* Locations */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <Card className="rounded-2xl shadow-lg bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+                  <Target className="h-5 w-5 text-indigo-600" />
                   Locations
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Origin</p>
-                  <p className="font-semibold">{tripData.origin.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {tripData.origin.lat.toFixed(4)}, {tripData.origin.lng.toFixed(4)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Destination</p>
-                  <p className="font-semibold">{tripData.destination.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {tripData.destination.lat.toFixed(4)}, {tripData.destination.lng.toFixed(4)}
-                  </p>
-                </div>
+                {['Origin', 'Destination'].map((loc) => {
+                  const point = loc === 'Origin' ? tripData.origin : tripData.destination;
+                  return (
+                    <div key={loc}>
+                      <p className="text-sm text-muted-foreground">{loc}</p>
+                      <p className="font-semibold">{point.name}</p>
+                      <p className="text-xs text-muted-foreground">{point.lat.toFixed(4)}, {point.lng.toFixed(4)}</p>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
+          </motion.div>
 
-            {/* Path Points */}
-            <Card>
+          {/* Path Timeline */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <Card className="rounded-2xl shadow-lg bg-white">
               <CardHeader>
                 <CardTitle>Path Timeline</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {tripData.path.map((point, index) => (
-                    <div key={index} className="flex items-center gap-3">
+                  {tripData.path.map((point, idx) => (
+                    <motion.div
+                      key={idx}
+                      className="flex items-center gap-3"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: idx * 0.1 }}
+                    >
                       <div className={`w-3 h-3 rounded-full ${
-                        index === 0 ? 'bg-green-500' : 
-                        index === tripData.path.length - 1 ? 'bg-red-500' : 
+                        idx === 0 ? 'bg-green-500' :
+                        idx === tripData.path.length - 1 ? 'bg-red-500' :
                         'bg-blue-500'
                       }`} />
                       <div className="text-sm">
                         <p className="font-medium">{point.timestamp}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {point.lat.toFixed(4)}, {point.lng.toFixed(4)}
-                        </p>
+                        <p className="text-xs text-muted-foreground">{point.lat.toFixed(4)}, {point.lng.toFixed(4)}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

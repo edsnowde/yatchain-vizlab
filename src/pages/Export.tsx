@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +34,7 @@ const mockAggregatedData = [
   {
     id: 'AGG002',
     route: 'Kakkanad → Ernakulam',
-    mode: 'Bus', 
+    mode: 'Bus',
     purpose: 'Work',
     tripCount: 189,
     avgDistance: 12.5,
@@ -153,7 +154,12 @@ const Export = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <motion.div
+      className="h-screen flex flex-col"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Top bar */}
       <div className="border-b bg-card p-4">
         <div className="flex items-center justify-between">
@@ -261,8 +267,9 @@ const Export = () => {
                   {selectedRows.length} selected
                 </span>
                 <Button onClick={handleExport} disabled={selectedRows.length === 0}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Selected
+                  <motion.div whileTap={{ scale: 0.95 }} className="flex items-center">
+                    <Download className="h-4 w-4 mr-2" /> Export Selected
+                  </motion.div>
                 </Button>
               </div>
             </div>
@@ -290,7 +297,12 @@ const Export = () => {
               </TableHeader>
               <TableBody>
                 {mockAggregatedData.map((row) => (
-                  <TableRow key={row.id}>
+                  <motion.tr
+                    key={row.id}
+                    initial={{ backgroundColor: "#ffffff" }}
+                    animate={{ backgroundColor: selectedRows.includes(row.id) ? "#e0f2fe" : "#ffffff" }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <TableCell>
                       <Checkbox 
                         checked={selectedRows.includes(row.id)}
@@ -310,7 +322,7 @@ const Export = () => {
                     <TableCell className="text-primary font-semibold">₹{row.avgCost}</TableCell>
                     <TableCell className="text-primary font-semibold">₹{row.totalCost.toLocaleString()}</TableCell>
                     <TableCell>{row.peakHour}</TableCell>
-                  </TableRow>
+                  </motion.tr>
                 ))}
               </TableBody>
             </Table>
@@ -352,7 +364,7 @@ const Export = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

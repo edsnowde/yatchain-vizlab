@@ -1,5 +1,16 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsData, getHourlyData, getPurposeData } from '@/data/mockData';
 import { Activity, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
@@ -11,16 +22,16 @@ interface ChartsSectionProps {
 const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
   const hourlyData = getHourlyData();
   const purposeData = getPurposeData();
-  
+
   // Mode share data for pie chart
   const modeShareData = Object.entries(stats.modeShare).map(([mode, share]) => ({
     mode,
     share,
-    color: getModeColor(mode)
+    color: getModeColor(mode),
   }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Mode Share Pie Chart */}
       <Card className="hover:shadow-hover transition-all duration-300 bg-gradient-surface">
         <CardHeader>
@@ -32,7 +43,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -41,7 +52,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
                   cy="50%"
                   labelLine={false}
                   label={({ mode, share }) => `${mode}: ${share}%`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="share"
                 >
@@ -49,13 +60,12 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value: any) => [`${value}%`, 'Share']}
-                  labelStyle={{ color: '#1f2937' }}
-                  contentStyle={{ 
-                    backgroundColor: '#ffffff', 
+                  contentStyle={{
+                    backgroundColor: '#fff',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
                   }}
                 />
               </PieChart>
@@ -75,29 +85,28 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="hour" 
-                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                <XAxis
+                  dataKey="hour"
+                  tick={{ fontSize: 10, fill: '#6b7280' }}
                   angle={-45}
                   textAnchor="end"
-                  height={60}
+                  height={50}
                 />
-                <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                <Tooltip 
+                <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} />
+                <Tooltip
                   formatter={(value: any) => [value, 'Trips']}
-                  labelStyle={{ color: '#1f2937' }}
-                  contentStyle={{ 
-                    backgroundColor: '#ffffff', 
+                  contentStyle={{
+                    backgroundColor: '#fff',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
                   }}
                 />
-                <Bar 
-                  dataKey="trips" 
+                <Bar
+                  dataKey="trips"
                   fill="hsl(var(--chart-green))"
                   radius={[4, 4, 0, 0]}
                 />
@@ -107,8 +116,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
         </CardContent>
       </Card>
 
-      {/* Purpose Distribution Donut Chart */}
-      <Card className="hover:shadow-hover transition-all duration-300 bg-gradient-surface">
+      {/* Trip Purpose Donut Chart (full width below) */}
+      <Card className="lg:col-span-2 hover:shadow-hover transition-all duration-300 bg-gradient-surface">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <div className="p-1.5 bg-chart-orange/10 rounded-lg">
@@ -118,7 +127,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
+          <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -136,13 +145,12 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
                     <Cell key={`purpose-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value: any) => [`${value}%`, 'Share']}
-                  labelStyle={{ color: '#1f2937' }}
-                  contentStyle={{ 
-                    backgroundColor: '#ffffff', 
+                  contentStyle={{
+                    backgroundColor: '#fff',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
                   }}
                 />
               </PieChart>
@@ -157,13 +165,13 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ stats }) => {
 // Helper function to assign colors to transport modes
 function getModeColor(mode: string): string {
   const colorMap: { [key: string]: string } = {
-    'Bus': '#1e40af',
-    'Metro': '#059669',
-    'Train': '#7c3aed', 
-    'Walk': '#eab308',
+    Bus: '#1e40af',
+    Metro: '#059669',
+    Train: '#7c3aed',
+    Walk: '#eab308',
     'Two-Wheeler': '#ea580c',
-    'Car': '#dc2626',
-    'Auto-Rickshaw': '#8b5cf6'
+    Car: '#dc2626',
+    'Auto-Rickshaw': '#8b5cf6',
   };
   return colorMap[mode] || '#6b7280';
 }
