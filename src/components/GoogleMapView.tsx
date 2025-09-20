@@ -203,7 +203,7 @@ const GoogleMapView: React.FC<GoogleMapViewProps> = ({ trips, showSingleTrip, tr
       </CardHeader>
       <CardContent className="flex-1 p-0">
         <Wrapper 
-          apiKey="AIzaSyAtVGe4aum8ILVMg_n-oMEjQmvs1JkclTQ" // <-- Add your Google Maps API key
+          apiKey="  " // <-- Add your Google Maps API key
           libraries={['visualization']}
           render={(status) => {
             if (status === 'FAILURE') {
